@@ -51,10 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
 		customAuthenticationFilter.setFilterProcessesUrl("/api/login");  // Override default /login url
 
-		http.cors();
+		http.cors();  // Use @CrossOrigin annotation in the API, or a CorsFilter bean
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests().antMatchers("/api/login/**").permitAll();  // anybody can do login (put url that don't need permission like this before authorized url)
+		http.authorizeRequests().antMatchers("/api/login/**", "/api/token/refresh/**").permitAll();  // anybody can do login (put url that don't need permission like this before authorized url)
 		// Use these instead of @RolesAllowed annotation:
 		//http.authorizeRequests().antMatchers("GET", "/api/user/**").hasAnyAuthority("ROLE_USER");
 		//http.authorizeRequests().antMatchers("POST", "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
@@ -88,6 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             error.put("path", request.getServletPath());
 			// tokens.put("refresh_token", refresh_token);
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			response.setHeader("error", e.getMessage());
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);			
 			response.getWriter().write(error.toString());
 			
