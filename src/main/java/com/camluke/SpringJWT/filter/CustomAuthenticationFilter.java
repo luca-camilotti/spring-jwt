@@ -1,6 +1,7 @@
 package com.camluke.SpringJWT.filter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.camluke.SpringJWT.service.UserService;
 import com.camluke.SpringJWT.utils.AppUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,8 +35,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 	private final AuthenticationManager authenticationManager;
 	
+	
 	public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
+		
 	}
 	
 	@Override
@@ -71,12 +77,30 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		response.setHeader("refresh_token", refresh_token);
 		*/
 		
+		JSONObject tokens = new JSONObject();
+		tokens.put("timestamp", LocalDateTime.now().toString());
+		tokens.put("status", HttpStatus.OK.value());
+		tokens.put("message", "token created");
+        //error.put("error", "Unauthorized");
+		tokens.put("path", request.getServletPath());
+        tokens.put("username", user.getUsername());		
+		tokens.put("accessToken", access_token);
+		tokens.put("refreshToken", refresh_token);		
+		response.setStatus(HttpStatus.OK.value());
+		//response.setHeader("error", e.getMessage());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);			
+		response.getWriter().write(tokens.toString());
+		
 		// Send tokens in the response body (JSON format):
+		/*
 		Map<String, String> tokens = new HashMap<>();
-		tokens.put("access_token", access_token);
-		tokens.put("refresh_token", refresh_token);
+		tokens.put("id", user.getUsername());
+		tokens.put("id", user.getAuthorities().toArray());
+		tokens.put("accessToken", access_token);
+		tokens.put("refreshToken", refresh_token);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+		*/
 				
 	}
 

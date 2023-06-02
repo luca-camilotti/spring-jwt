@@ -2,6 +2,7 @@ package com.camluke.SpringJWT.api;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,11 +100,26 @@ public class UserResource {
 						.withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
 						.sign(algorithm);				
 				// Send tokens in the response body (JSON format):
+				/*
 				Map<String, String> tokens = new HashMap<>();
 				tokens.put("access_token", access_token);
 				tokens.put("refresh_token", refresh_token);
 				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 				new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+				*/
+				JSONObject tokens = new JSONObject();
+				tokens.put("timestamp", LocalDateTime.now().toString());
+				tokens.put("status", HttpStatus.OK.value());
+				tokens.put("message", "token created");
+		        //error.put("error", "Unauthorized");
+				tokens.put("path", request.getServletPath());
+		        tokens.put("username", user.getUsername());				
+				tokens.put("accessToken", access_token);
+				tokens.put("refreshToken", refresh_token);		
+				response.setStatus(HttpStatus.OK.value());
+				//response.setHeader("error", e.getMessage());
+				response.setContentType(MediaType.APPLICATION_JSON_VALUE);			
+				response.getWriter().write(tokens.toString());
 				
 			}
 			catch(Exception e) {

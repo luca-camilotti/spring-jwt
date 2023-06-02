@@ -3,6 +3,7 @@ package com.camluke.SpringJWT.models;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,7 +31,8 @@ public class AppUser {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id; 
 	private String name;
-	private String username; // can be the user email
+	@Column(unique = true)
+	private String username; // unique. it's the email
 	private String password;
 	// ManyToMany relationship: a user may have more roles, a role may be set to more users
 	@ManyToMany(fetch = FetchType.EAGER)  // EAGER = load all user roles every time you load a user
